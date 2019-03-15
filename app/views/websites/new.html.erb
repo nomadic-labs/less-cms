@@ -1,0 +1,39 @@
+<%= form_for @website, url: {action: "create"}, html: {class: "form"} do |f| %>
+  <div>
+    <%= label_tag(:project_name, "Project name") %>
+    <%= f.text_field :project_name %>
+  </div>
+
+  <div>
+    <%= label_tag(:source_repo, "Source repo") %>
+    <%= f.text_field :source_repo %>
+  </div>
+
+  <div>
+    <%= label_tag(:firebase_api_key, "Firebase API key") %>
+    <%= f.text_field :firebase_api_key %>
+  </div>
+
+  <div>
+    <%= label_tag(:firebase_auth_domain, "Firebase auth domain") %>
+    <%= f.text_field :firebase_auth_domain %>
+  </div>
+
+  <div>
+    <%= label_tag(:firebase_database_url, "Firebase database URL") %>
+    <%= f.text_field :firebase_database_url %>
+  </div>
+
+  <div>
+    <%= label_tag(:firebase_project_id, "Firebase project ID") %>
+    <%= f.text_field :firebase_project_id %>
+  </div>
+
+  <div>
+    <%= label_tag(:firebase_config, "Firebase config JSON") %>
+    <%= f.text_area :firebase_config %>
+  </div>
+
+  <div><%= f.submit "Create" %></div>
+
+<% end %>
