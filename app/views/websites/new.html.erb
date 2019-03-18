@@ -1,33 +1,56 @@
-<%= form_for @website, url: {action: "create"}, html: {class: "form"} do |f| %>
-  <div>
-    <%= label_tag(:project_name, "Project name") %>
-    <%= f.text_field :project_name %>
-  </div>
+<div class="page">
+  <div class="container">
 
-  <div>
-    <%= label_tag(:source_repo, "Source repo") %>
-    <%= f.text_field :source_repo %>
-  </div>
+    <header>
+      <h1>Create a new project</h1>
+    </header>
+    <main>
+      <div class="form-container">
+        <%= form_for @website, url: {action: "create"}, html: {class: "form"} do |f| %>
+          <div>
+            <%= label_tag(:project_name, "Project name") %>
+          </div>
+          <div>
+            <%= f.text_field :project_name %>
+          </div>
 
-  <div>
-    <%= label_tag(:firebase_project_id, "Firebase project ID") %>
-    <%= f.text_field :firebase_project_id %>
-  </div>
+          <div>
+            <%= label_tag(:source_repo, "Source repo") %>
+          </div>
+          <div>
+            <%= f.text_field :source_repo %>
+          </div>
 
-  <div>
-    <%= label_tag(:firebase_config, "Firebase config JSON") %>
-    <%= f.text_area :firebase_config, placeholder: '{
-      "apiKey": "",
-      "authDomain": "",
-      "databaseURL": "",
-      "projectId": "",
-      "storageBucket": "",
-      "messagingSenderId": "",
-      "serviceAccountKey": {}
+          <div>
+            <%= label_tag(:firebase_project_id, "Firebase project ID") %>
+          </div>
+          <div>
+            <%= f.text_field :firebase_project_id %>
+          </div>
+
+          <div>
+            <%= label_tag(:firebase_config, "Firebase config JSON") %>
+          </div>
+          <div>
+            <%= f.text_area :firebase_config, rows: 10, placeholder: '{
+  "apiKey": "",
+  "authDomain": "",
+  "databaseURL": "",
+  "projectId": "",
+  "storageBucket": "",
+  "messagingSenderId": "",
+  "serviceAccountKey": {}
 }'
-    %>
+            %>
+          </div>
+
+          <div><%= f.submit "Create", class: "btn-submit" %></div>
+
+        <% end %>
+      </div>
+    </main>
+
   </div>
+</div>
 
-  <div><%= f.submit "Create" %></div>
 
-<% end %>

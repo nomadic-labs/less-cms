@@ -1,11 +1,6 @@
 class WebsitesController < ApplicationController
-  before_action :restrict_access, only: :deploy
+  before_action :restrict_access, except: [:new, :create, :show]
   skip_before_action :verify_authenticity_token, except: [:new, :create]
-
-  def index
-    @websites = Website.order(:created_at)
-    render json: @websites
-  end
 
   def show
     @website = Website.friendly.find(params[:id])
