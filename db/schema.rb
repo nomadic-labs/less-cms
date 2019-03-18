@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_03_15_010158) do
+ActiveRecord::Schema.define(version: 2019_03_18_222939) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -18,15 +18,12 @@ ActiveRecord::Schema.define(version: 2019_03_15_010158) do
   create_table "websites", force: :cascade do |t|
     t.string "project_name"
     t.string "source_repo"
-    t.string "firebase_api_key"
-    t.string "firebase_auth_domain"
-    t.string "firebase_database_url"
     t.string "firebase_project_id"
-    t.text "firebase_service_account_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "access_token"
     t.json "firebase_config"
+    t.string "slug"
+    t.index ["slug"], name: "index_websites_on_slug", unique: true
   end
 
 end

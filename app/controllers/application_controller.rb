@@ -1,12 +1,14 @@
 class ApplicationController < ActionController::Base
   include ActionController::HttpAuthentication::Token::ControllerMethods
-  include Knock::Authenticable
 
   protected
 
   def restrict_access
+    website = Website.friendly.find(params[:id])
     authenticate_or_request_with_http_token do |token, options|
-      @current_website = Website.exists?(access_token: token)
+      firebase = FirebaseService.new(JSON.parse(website.firebase_config))
+      validated_user = firebase.validate_token(token)
+      firebase.user_is_editor? validated_user
     end
   end
 end

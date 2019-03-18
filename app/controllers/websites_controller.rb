@@ -1,6 +1,5 @@
 class WebsitesController < ApplicationController
-  # before_action :restrict_access, only: :deploy
-  before_action :authenticate_user, only: :deploy
+  before_action :restrict_access, only: :deploy
   skip_before_action :verify_authenticity_token, except: [:new, :create]
 
   def index
@@ -9,7 +8,7 @@ class WebsitesController < ApplicationController
   end
 
   def show
-    @website = Website.find(params[:id])
+    @website = Website.friendly.find(params[:id])
     render json: @website
   end
 
@@ -25,23 +24,27 @@ class WebsitesController < ApplicationController
   end
 
   def update
-    @website = Website.find params[:id]
+    @website = Website.friendly.find params[:id]
     @website.update(website_params)
 
     render json: @website, status: :ok
   end
 
   def destroy
-    @website = Website.find params[:id]
+    @website = Website.friendly.find params[:id]
     @website.destroy
     render json: nil, status: :no_content
   end
 
   def deploy
-    p current_user
-    @website = Website.find params[:id]
-    @website.deploy(current)
-    render json: { message: "deployed!", status: :ok}
+    @website = Website.friendly.find params[:id]
+    service = DeployService.new @website
+    begin
+      service.deploy
+      render json: { message: "Deployed!", status: :ok }
+    rescue DeploymentError => e
+      render json: { error: e, status: :unprocessable_entity }
+    end
   end
 
   def website_params

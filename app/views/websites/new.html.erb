@@ -10,28 +10,22 @@
   </div>
 
   <div>
-    <%= label_tag(:firebase_api_key, "Firebase API key") %>
-    <%= f.text_field :firebase_api_key %>
-  </div>
-
-  <div>
-    <%= label_tag(:firebase_auth_domain, "Firebase auth domain") %>
-    <%= f.text_field :firebase_auth_domain %>
-  </div>
-
-  <div>
-    <%= label_tag(:firebase_database_url, "Firebase database URL") %>
-    <%= f.text_field :firebase_database_url %>
-  </div>
-
-  <div>
     <%= label_tag(:firebase_project_id, "Firebase project ID") %>
     <%= f.text_field :firebase_project_id %>
   </div>
 
   <div>
     <%= label_tag(:firebase_config, "Firebase config JSON") %>
-    <%= f.text_area :firebase_config %>
+    <%= f.text_area :firebase_config, placeholder: '{
+      "apiKey": "",
+      "authDomain": "",
+      "databaseURL": "",
+      "projectId": "",
+      "storageBucket": "",
+      "messagingSenderId": "",
+      "serviceAccountKey": {}
+}'
+    %>
   </div>
 
   <div><%= f.submit "Create" %></div>
