@@ -1,0 +1,25 @@
+<div class="page">
+  <div class="container">
+
+    <header>
+      <h1>All projects</h1>
+    </header>
+    <main>
+      <table class="projects-table">
+        <tbody>
+          <% @websites.each do |website| %>
+            <tr class="project">
+              <td><%= website.project_name %></td>
+              <td><%= website.firebase_project_id %></td>
+              <td><%= link_to "Edit project", edit_website_path(website) %></td>
+              <td><%= link_to "Delete project", website_path(website), method: :delete, data: { confirm: 'Are you sure you want to delete this project?' } %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </main>
+
+  </div>
+</div>
+
+

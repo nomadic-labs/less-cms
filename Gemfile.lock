@@ -65,6 +65,8 @@ GEM
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
     ffi (1.10.0)
+    figaro (1.1.1)
+      thor (~> 0.14)
     firebase (0.2.8)
       googleauth
       httpclient (>= 2.5.3)
@@ -214,6 +216,7 @@ DEPENDENCIES
   bootsnap (>= 1.1.0)
   byebug
   coffee-rails (~> 4.2)
+  figaro
   firebase
   friendly_id (~> 5.2.4)
   httparty

@@ -1,6 +1,12 @@
 class WebsitesController < ApplicationController
-  before_action :restrict_access, except: [:new, :create, :show]
-  skip_before_action :verify_authenticity_token, except: [:new, :create]
+  before_action :restrict_access, only: :deploy
+  skip_before_action :verify_authenticity_token, only: [:deploy]
+
+  http_basic_authenticate_with name: ENV["app_name"], password: ENV["app_password"], except: :deploy
+
+  def index
+    @websites = Website.order(:created_at)
+  end
 
   def show
     @website = Website.friendly.find(params[:id])
@@ -9,6 +15,7 @@ class WebsitesController < ApplicationController
 
   def new
     @website = Website.new
+    @submit_action = "create"
   end
 
   def create
@@ -16,6 +23,12 @@ class WebsitesController < ApplicationController
     if @website.save
       render json: @website, status: :created
     end
+  end
+
+  def edit
+    @website = Website.friendly.find(params[:id])
+    @submit_action = "update"
+    render :new
   end
 
   def update
@@ -28,7 +41,7 @@ class WebsitesController < ApplicationController
   def destroy
     @website = Website.friendly.find params[:id]
     @website.destroy
-    render json: nil, status: :no_content
+    redirect_to websites_url
   end
 
   def deploy
@@ -36,7 +49,7 @@ class WebsitesController < ApplicationController
     service = DeployService.new @website
     begin
       service.deploy
-      render json: { message: "Deployed!", status: :ok }
+      render json: { message: "The website has been deployed. Refresh the page to see the live changes.", status: :ok }
     rescue DeploymentError => e
       render json: { error: e, status: :unprocessable_entity }
     end
@@ -48,10 +61,8 @@ class WebsitesController < ApplicationController
       .permit(
         :project_name,
         :source_repo,
-        :firebase_api_key,
-        :firebase_auth_domain,
-        :firebase_database_url,
         :firebase_project_id,
+        :cloudflare_zone_id,
         :firebase_config)
   end
 end

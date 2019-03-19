@@ -2,16 +2,15 @@ require 'open-uri'
 require 'zip'
 
 class DeploymentError < StandardError
-    def initialize(msg="There was an error deploying the website.")
-      super
-    end
+  def initialize(msg="There was an error deploying the website.")
+    super
   end
+end
 
 class DeployService
 
   def initialize(website)
     @website = website
-
   end
 
   def deploy
@@ -22,10 +21,11 @@ class DeployService
       write_env_file
       build_website
       deploy_to_firebase
+      purge_cloudflare_cache
       remove_project_files
     rescue StandardError => e
       remove_project_files
-      raise DeploymentError "There was an error deploying the website: #{e}"
+      raise StandardError, "An error occurred while deploying the website: #{e}"
     end
   end
 
@@ -82,6 +82,11 @@ class DeployService
       p "Deploying to firebase hosting"
       deploy_result = %x(firebase use #{@website.firebase_project_id} && firebase deploy)
     end
+  end
+
+  def purge_cloudflare_cache
+    client = CloudflareService.new(@website)
+    client.purge_cache
   end
 
   def remove_project_files

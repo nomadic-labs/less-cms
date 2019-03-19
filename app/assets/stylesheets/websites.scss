@@ -14,7 +14,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
 }
 
-label, input {
+label {
   line-height: 2;
 }
 
@@ -30,6 +30,7 @@ textarea {
 
 input, textarea {
   width: 100%;
+  padding: 0.5rem;
 }
 
 .page {
@@ -72,4 +73,26 @@ input, textarea {
     text-decoration: none;
     transform: translateY(-5px);
   }
+}
+
+.form-container {
+  form {
+    > div {
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+.projects-table {
+  width: 100%;
+
+  tr.project {
+    border-bottom: 1px solid grey;
+
+    td {
+      padding-right: 0.5rem;
+      line-height: 2;
+    }
+  }
+
 }

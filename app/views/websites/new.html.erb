@@ -6,32 +6,29 @@
     </header>
     <main>
       <div class="form-container">
-        <%= form_for @website, url: {action: "create"}, html: {class: "form"} do |f| %>
+        <%= form_for @website, url: { action: @submit_action }, html: { class: "form" } do |f| %>
           <div>
             <%= label_tag(:project_name, "Project name") %>
-          </div>
-          <div>
             <%= f.text_field :project_name %>
           </div>
 
           <div>
             <%= label_tag(:source_repo, "Source repo") %>
-          </div>
-          <div>
             <%= f.text_field :source_repo %>
           </div>
 
           <div>
             <%= label_tag(:firebase_project_id, "Firebase project ID") %>
-          </div>
-          <div>
             <%= f.text_field :firebase_project_id %>
           </div>
 
           <div>
-            <%= label_tag(:firebase_config, "Firebase config JSON") %>
+            <%= label_tag(:cloudflare_zone_id, "Cloudflare zone ID") %>
+            <%= f.text_field :cloudflare_zone_id %>
           </div>
+
           <div>
+            <%= label_tag(:firebase_config, "Firebase config JSON") %>
             <%= f.text_area :firebase_config, rows: 10, placeholder: '{
   "apiKey": "",
   "authDomain": "",
@@ -44,7 +41,7 @@
             %>
           </div>
 
-          <div><%= f.submit "Create", class: "btn-submit" %></div>
+          <div><%= f.submit "Save", class: "btn-submit" %></div>
 
         <% end %>
       </div>
