@@ -81,5 +81,5 @@ test:
 production:
   <<: *default
   database: less-cms_production
-  username: less-cms
+  username: <%= ENV['LESS-CMS_DATABASE_USER'] %>
   password: <%= ENV['LESS-CMS_DATABASE_PASSWORD'] %>

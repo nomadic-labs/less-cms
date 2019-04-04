@@ -57,6 +57,7 @@ class DeployService
 
       p "Building website"
       build_result = %x(yarn build)
+      p build_result
     end
   end
 
