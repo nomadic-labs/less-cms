@@ -77,8 +77,16 @@ class DeployService
 
   def write_env_file
     filepath = File.join(@website_root_dir, '.env.production')
+    host = "localhost"
+    protocol ="http"
+
+    if ENV["RAILS_ENV"] == "production"
+      host = "www.lesscms.ca"
+      protocol ="https"
+    end
+
     File.open(filepath, "w+") do |f|
-      deploy_endpoint = Rails.application.routes.url_helpers.deploy_website_url(@website, host: "localhost:3000", protocol: "http")
+      deploy_endpoint = Rails.application.routes.url_helpers.deploy_website_url(@website, host: host, protocol: protocol)
       p "Writing deploy endpoint environment variable to file: #{deploy_endpoint}"
       Rails.logger.info "Writing deploy endpoint environment variable to file: #{deploy_endpoint}"
       f.write("GATSBY_DEPLOY_ENDPOINT=#{deploy_endpoint}")
