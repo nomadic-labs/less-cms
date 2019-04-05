@@ -98,6 +98,7 @@ class DeployService
       p "Deploying to firebase hosting"
       Rails.logger.info "Deploying to firebase hosting"
       deploy_result = %x(firebase use #{@website.firebase_project_id} && firebase deploy)
+      Rails.logger.info deploy_result
     end
   end
 
