@@ -39,16 +39,21 @@ class DeployService
     dest_dir = File.path("#{Rails.root}/tmp/website_root/")
     FileUtils.mkdir(dest_dir) unless File.directory?(dest_dir)
 
+    Rails.logger.info "Created destination directory"
+
     entry_name = ""
     Zip::File.open_buffer(content) do |zip_file|
       zip_file.each do |entry|
         entry_name = entry.name
         fpath = File.join(dest_dir, entry.name)
         entry.extract(fpath)
+        Rails.logger.info "Extracted file #{entry_name}"
       end
     end
 
     dir_name = entry_name.split("/")[0]
+    Rails.logger.info "Dir name"
+    Rails.logger.info dir_name
     File.path("#{Rails.root}/tmp/website_root/#{dir_name}/")
   end
 
