@@ -9,8 +9,9 @@ end
 
 class DeployService
 
-  def initialize(website)
+  def initialize(website, editor_info)
     @website = website
+    @editor_info = editor_info
   end
 
   def deploy
@@ -20,10 +21,11 @@ class DeployService
       @website_root_dir = download_source_repo
       write_firebase_config_file
       write_env_file
-      build_website
-      deploy_to_firebase
-      purge_cloudflare_cache
+      # build_website
+      # deploy_to_firebase
+      # purge_cloudflare_cache
       remove_project_files
+      notify_editor
     rescue StandardError => e
       remove_project_files
       raise StandardError, "An error occurred while deploying the website: #{e}"
@@ -116,5 +118,12 @@ class DeployService
     p "Removing project root folder"
     Rails.logger.info "Removing project root folder"
     FileUtils.rm_rf(@website_root_dir)
+  end
+
+  def notify_editor
+    p "Notifying editor that deployed the website: #{@editor_info['displayName']} at #{@editor_info['email']}"
+    Rails.logger.info "Notifying editor that deployed the website: #{@editor_info['displayName']} at #{@editor_info['email']}"
+
+    EditorMailer.with(website: @website, editor_info: @editor_info).website_published_email.deliver_now
   end
 end
