@@ -19,13 +19,13 @@ class DeployService
     p "Deploy started for #{@website.project_name} by #{@editor_info['displayName']} at #{@timestamp}"
     Rails.logger.info "Deploy started for #{@website.project_name} by #{@editor_info['displayName']} at #{@timestamp}"
     begin
-      @website_root_dir = download_source_repo
+      download_source_repo
       write_firebase_config_file
       write_env_file
       install_website_dependencies
       build_website
-      # deploy_to_firebase
-      # purge_cloudflare_cache
+      deploy_to_firebase
+      purge_cloudflare_cache
       remove_project_files
       notify_editor_success
     rescue StandardError => e
@@ -62,9 +62,9 @@ class DeployService
     end
 
     dir_name = entry_name.split("/")[0]
-    Rails.logger.info "Dir name"
-    Rails.logger.info dir_name
-    File.path("#{Rails.root}/tmp/website_root/#{dir_name}/")
+    p "Extracted files to #{dir_name}"
+    Rails.logger.info "Extracted files to #{dir_name}"
+    @website_root_dir = File.path("#{Rails.root}/tmp/website_root/#{dir_name}/")
   end
 
   def install_website_dependencies
