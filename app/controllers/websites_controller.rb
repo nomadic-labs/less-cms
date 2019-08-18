@@ -62,6 +62,7 @@ class WebsitesController < ApplicationController
         :source_repo,
         :firebase_project_id,
         :cloudflare_zone_id,
-        :firebase_config)
+        :firebase_config,
+        :environment_variables)
   end
 end

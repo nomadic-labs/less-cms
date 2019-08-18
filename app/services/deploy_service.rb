@@ -12,22 +12,25 @@ class DeployService
   def initialize(website, editor_info)
     @website = website
     @editor_info = editor_info
+    @timestamp = Time.now
   end
 
   def deploy
-    p "Deploying website #{@website.project_name} from #{@website.source_repo}"
-    Rails.logger.info "Deploying website #{@website.project_name} from #{@website.source_repo}"
+    p "Deploy started for #{@website.project_name} by #{@editor_info['displayName']} at #{@timestamp}"
+    Rails.logger.info "Deploy started for #{@website.project_name} by #{@editor_info['displayName']} at #{@timestamp}"
     begin
       @website_root_dir = download_source_repo
       write_firebase_config_file
       write_env_file
-      # build_website
+      install_website_dependencies
+      build_website
       # deploy_to_firebase
       # purge_cloudflare_cache
       remove_project_files
-      notify_editor
+      notify_editor_success
     rescue StandardError => e
       remove_project_files
+      notify_editor_failure
       raise StandardError, "An error occurred while deploying the website: #{e}"
     end
   end
@@ -39,7 +42,12 @@ class DeployService
     Rails.logger.info "Dowloading source code from #{@website.source_repo}"
     content = open(@website.source_repo)
     dest_dir = File.path("#{Rails.root}/tmp/website_root/")
-    FileUtils.mkdir(dest_dir) unless File.directory?(dest_dir)
+
+    if File.directory?(dest_dir)
+      FileUtils.rm_rf(dest_dir)
+    end
+
+    FileUtils.mkdir(dest_dir)
 
     Rails.logger.info "Created destination directory"
 
@@ -59,17 +67,21 @@ class DeployService
     File.path("#{Rails.root}/tmp/website_root/#{dir_name}/")
   end
 
-  def build_website
+  def install_website_dependencies
     Dir.chdir(@website_root_dir) do
       p "Installing dependencies in #{@website_root_dir}"
       Rails.logger.info "Installing dependencies in #{@website_root_dir}"
-      yarn_result = %x(yarn)
+      yarn_result = `yarn`
+    end
+  end
 
+  def build_website
+    Dir.chdir(@website_root_dir) do
       p "Building website"
       Rails.logger.info "Building website"
-      build_result = %x(yarn build)
-      p build_result
-      Rails.logger.info build_result
+      result = system("yarn build")
+      p result
+      Rails.logger.info result
     end
   end
 
@@ -92,11 +104,15 @@ class DeployService
       protocol ="https"
     end
 
-    File.open(filepath, "w+") do |f|
+    File.open(filepath, "a+") do |f|
       deploy_endpoint = Rails.application.routes.url_helpers.deploy_website_url(@website, host: host, protocol: protocol)
       p "Writing deploy endpoint environment variable to file: #{deploy_endpoint}"
       Rails.logger.info "Writing deploy endpoint environment variable to file: #{deploy_endpoint}"
-      f.write("GATSBY_DEPLOY_ENDPOINT=#{deploy_endpoint}")
+      f.write("GATSBY_DEPLOY_ENDPOINT=#{deploy_endpoint}\n")
+
+      p "Writing additional environment variables to file"
+      Rails.logger.info "Writing additional environment variables to file"
+      f.write(@website.environment_variables)
     end
   end
 
@@ -117,13 +133,20 @@ class DeployService
   def remove_project_files
     p "Removing project root folder"
     Rails.logger.info "Removing project root folder"
-    FileUtils.rm_rf(@website_root_dir)
+    FileUtils.rm_rf(@website_root_dir) if File.directory?(@website_root_dir)
   end
 
-  def notify_editor
-    p "Notifying editor that deployed the website: #{@editor_info['displayName']} at #{@editor_info['email']}"
-    Rails.logger.info "Notifying editor that deployed the website: #{@editor_info['displayName']} at #{@editor_info['email']}"
+  def notify_editor_success
+    p "Sending success notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
+    Rails.logger.info "Sending success notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
 
     EditorMailer.with(website: @website, editor_info: @editor_info).website_published_email.deliver_now
+  end
+
+  def notify_editor_failure
+    p "Sending failure notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
+    Rails.logger.info "Sending failure notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
+
+    EditorMailer.with(website: @website, editor_info: @editor_info).deploy_failed_email.deliver_now
   end
 end
