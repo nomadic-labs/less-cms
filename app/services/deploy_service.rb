@@ -72,7 +72,7 @@ class DeployService
       p "Installing dependencies in #{@website_root_dir}"
       Rails.logger.info "Installing dependencies in #{@website_root_dir}"
       Delayed::Worker.logger.info "Installing dependencies in #{@website_root_dir}"
-      yarn_result = `yarn`
+      yarn_result = system("yarn")
     end
   end
 
