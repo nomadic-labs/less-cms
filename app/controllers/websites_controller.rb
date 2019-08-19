@@ -46,10 +46,9 @@ class WebsitesController < ApplicationController
 
   def deploy
     @website = Website.friendly.find params[:id]
-    service = DeployService.new @website
+    PublishWebsiteJob.perform_later(@website, @current_user)
     begin
-      service.deploy
-      render json: { message: "The website has been deployed. Refresh the page to see the live changes.", status: :ok }
+      render json: { message: "The website is being published. You will be notified by email when your changes are live.", status: :ok }
     rescue DeploymentError => e
       render json: { error: e, status: :unprocessable_entity }
     end
@@ -63,6 +62,7 @@ class WebsitesController < ApplicationController
         :source_repo,
         :firebase_project_id,
         :cloudflare_zone_id,
-        :firebase_config)
+        :firebase_config,
+        :environment_variables)
   end
 end

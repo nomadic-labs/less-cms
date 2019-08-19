@@ -41,6 +41,11 @@
             %>
           </div>
 
+          <div>
+            <%= label_tag(:environment_variables, "Environment variables") %>
+            <%= f.text_area :environment_variables, rows: 10 %>
+          </div>
+
           <div><%= f.submit "Save", class: "btn-submit" %></div>
 
         <% end %>
