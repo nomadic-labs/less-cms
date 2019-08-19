@@ -82,9 +82,6 @@ class DeployService
       Rails.logger.info "Building website"
       Delayed::Worker.logger.info "Building website"
       result = system("yarn build")
-      p result
-      Rails.logger.info result
-      Delayed::Worker.logger.info result
     end
   end
 
@@ -128,8 +125,8 @@ class DeployService
       Rails.logger.info "Deploying to firebase hosting"
       Delayed::Worker.logger.info "Deploying to firebase hosting"
       deploy_result = %x(firebase use #{@website.firebase_project_id} && firebase deploy)
-      Rails.logger.info deploy_result
-      Delayed::Worker.logger.info deploy_result
+      Rails.logger.info "Build completed => #{deploy_result}"
+      Delayed::Worker.logger.info "Build completed => #{deploy_result}"
     end
   end
 
