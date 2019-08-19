@@ -18,6 +18,7 @@ class DeployService
   def deploy
     p "Deploy started for #{@website.project_name} by #{@editor_info['displayName']} at #{@timestamp}"
     Rails.logger.info "Deploy started for #{@website.project_name} by #{@editor_info['displayName']} at #{@timestamp}"
+    Delayed::Worker.logger.info "Deploy started for #{@website.project_name} by #{@editor_info['displayName']} at #{@timestamp}"
     begin
       download_source_repo
       write_firebase_config_file
@@ -40,6 +41,7 @@ class DeployService
   def download_source_repo
     p "Dowloading source code from #{@website.source_repo}"
     Rails.logger.info "Dowloading source code from #{@website.source_repo}"
+    Delayed::Worker.logger.info "Dowloading source code from #{@website.source_repo}"
     content = open(@website.source_repo)
     dest_dir = File.path("#{Rails.root}/tmp/website_root/")
 
@@ -49,21 +51,19 @@ class DeployService
 
     FileUtils.mkdir(dest_dir)
 
-    Rails.logger.info "Created destination directory"
-
     entry_name = ""
     Zip::File.open_buffer(content) do |zip_file|
       zip_file.each do |entry|
         entry_name = entry.name
         fpath = File.join(dest_dir, entry.name)
         entry.extract(fpath)
-        Rails.logger.info "Extracted file #{entry_name}"
       end
     end
 
     dir_name = entry_name.split("/")[0]
     p "Extracted files to #{dir_name}"
     Rails.logger.info "Extracted files to #{dir_name}"
+    Delayed::Worker.logger.info "Extracted files to #{dir_name}"
     @website_root_dir = File.path("#{Rails.root}/tmp/website_root/#{dir_name}/")
   end
 
@@ -71,6 +71,7 @@ class DeployService
     Dir.chdir(@website_root_dir) do
       p "Installing dependencies in #{@website_root_dir}"
       Rails.logger.info "Installing dependencies in #{@website_root_dir}"
+      Delayed::Worker.logger.info "Installing dependencies in #{@website_root_dir}"
       yarn_result = `yarn`
     end
   end
@@ -79,15 +80,18 @@ class DeployService
     Dir.chdir(@website_root_dir) do
       p "Building website"
       Rails.logger.info "Building website"
+      Delayed::Worker.logger.info "Building website"
       result = system("yarn build")
       p result
       Rails.logger.info result
+      Delayed::Worker.logger.info result
     end
   end
 
   def write_firebase_config_file
     p "Writing firebase config file"
     Rails.logger.info "Writing firebase config file"
+    Delayed::Worker.logger.info "Writing firebase config file"
     filepath = File.join(@website_root_dir, 'config', 'firebase-config.json')
     File.open(filepath, "w+") do |f|
       f.write(@website.firebase_config)
@@ -108,10 +112,12 @@ class DeployService
       deploy_endpoint = Rails.application.routes.url_helpers.deploy_website_url(@website, host: host, protocol: protocol)
       p "Writing deploy endpoint environment variable to file: #{deploy_endpoint}"
       Rails.logger.info "Writing deploy endpoint environment variable to file: #{deploy_endpoint}"
+      Delayed::Worker.logger.info "Writing deploy endpoint environment variable to file: #{deploy_endpoint}"
       f.write("GATSBY_DEPLOY_ENDPOINT=#{deploy_endpoint}\n")
 
       p "Writing additional environment variables to file"
       Rails.logger.info "Writing additional environment variables to file"
+      Delayed::Worker.logger.info "Writing additional environment variables to file"
       f.write(@website.environment_variables)
     end
   end
@@ -120,8 +126,10 @@ class DeployService
     Dir.chdir(@website_root_dir) do
       p "Deploying to firebase hosting"
       Rails.logger.info "Deploying to firebase hosting"
+      Delayed::Worker.logger.info "Deploying to firebase hosting"
       deploy_result = %x(firebase use #{@website.firebase_project_id} && firebase deploy)
       Rails.logger.info deploy_result
+      Delayed::Worker.logger.info deploy_result
     end
   end
 
@@ -133,12 +141,14 @@ class DeployService
   def remove_project_files
     p "Removing project root folder"
     Rails.logger.info "Removing project root folder"
+    Delayed::Worker.logger.info "Removing project root folder"
     FileUtils.rm_rf(@website_root_dir) if File.directory?(@website_root_dir)
   end
 
   def notify_editor_success
     p "Sending success notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
     Rails.logger.info "Sending success notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
+    Delayed::Worker.logger.info "Sending success notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
 
     EditorMailer.with(website: @website, editor_info: @editor_info).website_published_email.deliver_now
   end
@@ -146,6 +156,7 @@ class DeployService
   def notify_editor_failure
     p "Sending failure notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
     Rails.logger.info "Sending failure notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
+    Delayed::Worker.logger.info "Sending failure notification to: #{@editor_info['displayName']} at #{@editor_info['email']}"
 
     EditorMailer.with(website: @website, editor_info: @editor_info).deploy_failed_email.deliver_now
   end
