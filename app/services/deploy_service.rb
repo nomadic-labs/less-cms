@@ -72,7 +72,10 @@ class DeployService
       p "Installing dependencies in #{@website_root_dir}"
       Rails.logger.info "Installing dependencies in #{@website_root_dir}"
       Delayed::Worker.logger.info "Installing dependencies in #{@website_root_dir}"
-      yarn_result = system("yarn")
+      success = system("yarn")
+      if !success
+        raise StandardError, "Failed to install dependencies (yarn)"
+      end
     end
   end
 
@@ -81,7 +84,10 @@ class DeployService
       p "Building website"
       Rails.logger.info "Building website"
       Delayed::Worker.logger.info "Building website"
-      result = system("yarn build")
+      success = system("yarn build")
+      if !success
+        raise StandardError, "Failed to build website (yarn build)"
+      end
     end
   end
 
@@ -129,9 +135,12 @@ class DeployService
       Rails.logger.info project_result
       Delayed::Worker.logger.info project_result
 
-      deploy_result = system("firebase deploy")
-      Rails.logger.info "Build completed => #{deploy_result}"
-      Delayed::Worker.logger.info "Build completed => #{deploy_result}"
+      success = system("firebase deploy")
+      Rails.logger.info "Build completed => #{success}"
+      Delayed::Worker.logger.info "Build completed => #{success}"
+      if !success
+        raise StandardError, "Failed to deploy to firebase (firebase deploy --debug)"
+      end
     end
   end
 
