@@ -74,7 +74,7 @@ class DeployService
       Delayed::Worker.logger.info "Installing dependencies in #{@website_root_dir}"
       success = system("yarn")
       if !success
-        raise StandardError, "Failed to install dependencies (yarn)"
+        raise StandardError, "Failed to install dependencies (yarn) with exit status code #{$?}"
       end
     end
   end
@@ -86,7 +86,7 @@ class DeployService
       Delayed::Worker.logger.info "Building website"
       success = system("yarn build")
       if !success
-        raise StandardError, "Failed to build website (yarn build)"
+        raise StandardError, "Failed to build website (yarn build) with exit status code #{$?}"
       end
     end
   end
@@ -126,6 +126,11 @@ class DeployService
   end
 
   def deploy_to_firebase
+    if !ENV["RAILS_ENV"] == "production"
+      p "Skipping deployment on development environment"
+      return
+    end
+
     Dir.chdir(@website_root_dir) do
       p "Deploying to firebase hosting"
       Rails.logger.info "Deploying to firebase hosting"
@@ -139,7 +144,7 @@ class DeployService
       Rails.logger.info "Build completed => #{success}"
       Delayed::Worker.logger.info "Build completed => #{success}"
       if !success
-        raise StandardError, "Failed to deploy to firebase (firebase deploy --debug)"
+        raise StandardError, "Failed to deploy to firebase (firebase deploy --debug) with exit status code #{$?}"
       end
     end
   end
