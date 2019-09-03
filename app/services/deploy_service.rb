@@ -124,7 +124,12 @@ class DeployService
       p "Deploying to firebase hosting"
       Rails.logger.info "Deploying to firebase hosting"
       Delayed::Worker.logger.info "Deploying to firebase hosting"
-      deploy_result = %x(firebase use #{@website.firebase_project_id} && firebase deploy)
+      project_result = %x(firebase use #{@website.firebase_project_id})
+
+      Rails.logger.info project_result
+      Delayed::Worker.logger.info project_result
+
+      deploy_result = system("firebase deploy")
       Rails.logger.info "Build completed => #{deploy_result}"
       Delayed::Worker.logger.info "Build completed => #{deploy_result}"
     end
