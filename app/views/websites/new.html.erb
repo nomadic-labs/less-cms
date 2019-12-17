@@ -28,7 +28,7 @@
           </div>
 
           <div>
-            <%= label_tag(:firebase_config, "Firebase config JSON") %>
+            <%= label_tag(:firebase_config, "[DEFAULT] Firebase config JSON") %>
             <%= f.text_area :firebase_config, rows: 10, placeholder: '{
   "apiKey": "",
   "authDomain": "",
@@ -42,8 +42,22 @@
           </div>
 
           <div>
+            <%= label_tag(:firebase_config_staging, "[STAGING] Firebase config JSON") %>
+            <%= f.text_area :firebase_config_staging, rows: 10, placeholder: '{
+  "apiKey": "",
+  "authDomain": "",
+  "databaseURL": "",
+  "projectId": "",
+  "storageBucket": "",
+  "messagingSenderId": "",
+  "serviceAccountKey": {}
+}'
+            %>
+          </div>
+
+          <div>
             <%= label_tag(:environment_variables, "Environment variables") %>
-            <%= f.text_area :environment_variables, rows: 10 %>
+            <%= f.text_area :environment_variables, rows: 10, placeholder: 'GATSBY_FIREBASE_ENVIRONMENT=' %>
           </div>
 
           <div><%= f.submit "Save", class: "btn-submit" %></div>

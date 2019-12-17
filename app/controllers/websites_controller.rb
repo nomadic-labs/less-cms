@@ -63,6 +63,7 @@ class WebsitesController < ApplicationController
         :firebase_project_id,
         :cloudflare_zone_id,
         :firebase_config,
+        :firebase_config_staging,
         :environment_variables)
   end
 end

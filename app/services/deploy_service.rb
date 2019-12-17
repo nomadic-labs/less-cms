@@ -21,7 +21,7 @@ class DeployService
     Delayed::Worker.logger.info "Deploy started for #{@website.project_name} by #{@editor_info['displayName']} at #{@timestamp}"
     begin
       download_source_repo
-      write_firebase_config_file
+      write_firebase_config_files
       write_env_file
       install_website_dependencies
       build_website
@@ -79,20 +79,6 @@ class DeployService
       Delayed::Worker.logger.info "Result of 'yarn' => #{result}"
 
       if $?.exitstatus != 0
-        result = system("yarn")
-        p "Result of system('yarn') => #{result}"
-        Rails.logger.info "Result of system('yarn') => #{result}"
-        Delayed::Worker.logger.info "Result of system('yarn') => #{result}"
-      end
-
-      if $?.exitstatus != 0
-        result = %x(yarn)
-        p "Result of %x(yarn) => #{result}"
-        Rails.logger.info "Result of %x(yarn) => #{result}"
-        Delayed::Worker.logger.info "Result of %x(yarn) => #{result}"
-      end
-
-      if $?.exitstatus != 0
         raise StandardError, "Failed to install dependencies (yarn) with exit status code #{$?}"
       end
     end
@@ -110,11 +96,23 @@ class DeployService
     end
   end
 
-  def write_firebase_config_file
-    p "Writing firebase config file"
-    Rails.logger.info "Writing firebase config file"
-    Delayed::Worker.logger.info "Writing firebase config file"
-    filepath = File.join(@website_root_dir, 'config', 'firebase-config.json')
+  def write_firebase_config_files
+    if @website.firebase_config_staging
+      p "Writing staging firebase config file"
+      Rails.logger.info "Writing staging firebase config file"
+      Delayed::Worker.logger.info "Writing staging firebase config file"
+      filename = "firebase-config.staging.json"
+      filepath = File.join(@website_root_dir, 'config', filename)
+      File.open(filepath, "w+") do |f|
+        f.write(@website.firebase_config_staging)
+      end
+    end
+
+    p "Writing default firebase config file"
+    Rails.logger.info "Writing default firebase config file"
+    Delayed::Worker.logger.info "Writing default firebase config file"
+    filename = ENV["GATSBY_FIREBASE_ENVIRONMENT"] ? "firebase-config.#{ENV["GATSBY_FIREBASE_ENVIRONMENT"]}.json" : "firebase-config.json"
+    filepath = File.join(@website_root_dir, 'config', filename)
     File.open(filepath, "w+") do |f|
       f.write(@website.firebase_config)
     end
