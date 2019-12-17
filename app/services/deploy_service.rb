@@ -79,6 +79,20 @@ class DeployService
       Delayed::Worker.logger.info "Result of 'yarn' => #{result}"
 
       if $?.exitstatus != 0
+        result = system("yarn")
+        p "Result of system('yarn') => #{result}"
+        Rails.logger.info "Result of system('yarn') => #{result}"
+        Delayed::Worker.logger.info "Result of system('yarn') => #{result}"
+      end
+
+      if $?.exitstatus != 0
+        result = %x(yarn)
+        p "Result of %x(yarn) => #{result}"
+        Rails.logger.info "Result of %x(yarn) => #{result}"
+        Delayed::Worker.logger.info "Result of %x(yarn) => #{result}"
+      end
+
+      if $?.exitstatus != 0
         raise StandardError, "Failed to install dependencies (yarn) with exit status code #{$?}"
       end
     end
