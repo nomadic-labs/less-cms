@@ -72,10 +72,25 @@ class DeployService
       p "Installing dependencies in #{@website_root_dir}"
       Rails.logger.info "Installing dependencies in #{@website_root_dir}"
       Delayed::Worker.logger.info "Installing dependencies in #{@website_root_dir}"
-      output = `yarn`
-      p "Output of 'yarn' => #{output}"
-      Rails.logger.info "Output of 'yarn' => #{output}"
-      Delayed::Worker.logger.info "Output of 'yarn' => #{output}"
+
+      result = `yarn`
+      p "Result of 'yarn' => #{result}"
+      Rails.logger.info "Result of 'yarn' => #{result}"
+      Delayed::Worker.logger.info "Result of 'yarn' => #{result}"
+
+      if $?.exitstatus != 0
+        result = system("yarn")
+        p "Result of system('yarn') => #{result}"
+        Rails.logger.info "Result of system('yarn') => #{result}"
+        Delayed::Worker.logger.info "Result of system('yarn') => #{result}"
+      end
+
+      if $?.exitstatus != 0
+        result = %x(yarn)
+        p "Result of %x(yarn) => #{result}"
+        Rails.logger.info "Result of %x(yarn) => #{result}"
+        Delayed::Worker.logger.info "Result of %x(yarn) => #{result}"
+      end
 
       if $?.exitstatus != 0
         raise StandardError, "Failed to install dependencies (yarn) with exit status code #{$?}"
