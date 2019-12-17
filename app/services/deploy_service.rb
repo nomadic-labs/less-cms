@@ -100,33 +100,40 @@ class DeployService
 
   def build_website
     Dir.chdir(@website_root_dir) do
-      p "Building website"
-      Rails.logger.info "Building website"
-      Delayed::Worker.logger.info "Building website"
-      success = system("yarn build")
+      env_vars = ENV["GATSBY_FIREBASE_ENVIRONMENT"] ? "GATSBY_FIREBASE_ENVIRONMENT=#{ENV["GATSBY_FIREBASE_ENVIRONMENT"]}" : ""
+      success = system("yarn build #{env_vars}")
+
+      p "Building website with command yarn build #{env_vars}"
+      Rails.logger.info "Building website with command yarn build #{env_vars}"
+      Delayed::Worker.logger.info "Building website with command yarn build #{env_vars}"
+
       if !success
-        raise StandardError, "Failed to build website (yarn build) with exit status code #{$?}"
+        raise StandardError, "Failed to build website (yarn build #{env_vars}) with exit status code #{$?}"
       end
     end
   end
 
   def write_firebase_config_files
     if @website.firebase_config_staging
-      p "Writing staging firebase config file"
-      Rails.logger.info "Writing staging firebase config file"
-      Delayed::Worker.logger.info "Writing staging firebase config file"
       filename = "firebase-config.staging.json"
       filepath = File.join(@website_root_dir, 'config', filename)
+
+      p "Writing firebase config file to #{filepath}"
+      Rails.logger.info "Writing firebase config file to #{filepath}"
+      Delayed::Worker.logger.info "Writing firebase config file to #{filepath}"
+
       File.open(filepath, "w+") do |f|
         f.write(@website.firebase_config_staging)
       end
     end
 
-    p "Writing default firebase config file"
-    Rails.logger.info "Writing default firebase config file"
-    Delayed::Worker.logger.info "Writing default firebase config file"
     filename = ENV["GATSBY_FIREBASE_ENVIRONMENT"] ? "firebase-config.#{ENV["GATSBY_FIREBASE_ENVIRONMENT"]}.json" : "firebase-config.json"
     filepath = File.join(@website_root_dir, 'config', filename)
+
+    p "Writing firebase config file to #{filepath}"
+    Rails.logger.info "Writing firebase config file to #{filepath}"
+    Delayed::Worker.logger.info "Writing firebase config file to #{filepath}"
+
     File.open(filepath, "w+") do |f|
       f.write(@website.firebase_config)
     end
