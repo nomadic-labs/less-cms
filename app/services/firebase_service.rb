@@ -13,7 +13,8 @@ class FirebaseService
       firebase_infos = firebase_verification_call.parsed_response
       firebase_infos["users"][0]
     else
-      return nil
+      Rails.logger.info "Firebase verification failed: #{firebase_verification_call.response}"
+      raise StandardError, "Firebase verification failed: #{firebase_verification_call.response}"
     end
   end
 
