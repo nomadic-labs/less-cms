@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_17_175602) do
+ActiveRecord::Schema.define(version: 2019_12_17_212905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,8 @@ ActiveRecord::Schema.define(version: 2019_12_17_175602) do
     t.string "cloudflare_zone_id"
     t.text "environment_variables"
     t.json "firebase_config_staging"
+    t.string "gatsby_env"
+    t.string "firebase_env"
     t.index ["slug"], name: "index_websites_on_slug", unique: true
   end
 

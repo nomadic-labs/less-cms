@@ -56,8 +56,18 @@
           </div>
 
           <div>
+            <%= label_tag(:gatsby_env, "Gatsby environment") %>
+            <%= f.text_field :gatsby_env, placeholder: "staging" %>
+          </div>
+
+          <div>
+            <%= label_tag(:firebase_env, "Firebase environment") %>
+            <%= f.text_field :firebase_env, placeholder: "staging" %>
+          </div>
+
+          <div>
             <%= label_tag(:environment_variables, "Environment variables") %>
-            <%= f.text_area :environment_variables, rows: 10, placeholder: 'GATSBY_FIREBASE_ENVIRONMENT=' %>
+            <%= f.text_area :environment_variables, rows: 10, placeholder: 'API_KEY=' %>
           </div>
 
           <div><%= f.submit "Save", class: "btn" %></div>

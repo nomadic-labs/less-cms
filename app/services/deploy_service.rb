@@ -100,13 +100,13 @@ class DeployService
 
   def build_website
     Dir.chdir(@website_root_dir) do
-      env_vars = ENV["GATSBY_FIREBASE_ENVIRONMENT"] ? "GATSBY_FIREBASE_ENVIRONMENT=#{ENV["GATSBY_FIREBASE_ENVIRONMENT"]}" : ""
-      success = system("yarn build #{env_vars}")
+      env_vars = @website.gatsby_env ? "GATSBY_ACTIVE_ENV=#{@website.gatsby_env}" : ""
 
       p "Building website with command yarn build #{env_vars}"
       Rails.logger.info "Building website with command yarn build #{env_vars}"
       Delayed::Worker.logger.info "Building website with command yarn build #{env_vars}"
 
+      success = system("yarn build #{env_vars}")
       if !success
         raise StandardError, "Failed to build website (yarn build #{env_vars}) with exit status code #{$?}"
       end
@@ -127,7 +127,7 @@ class DeployService
       end
     end
 
-    filename = ENV["GATSBY_FIREBASE_ENVIRONMENT"] ? "firebase-config.#{ENV["GATSBY_FIREBASE_ENVIRONMENT"]}.json" : "firebase-config.json"
+    filename = @website.firebase_env ? "firebase-config.#{@website.firebase_env}.json" : "firebase-config.json"
     filepath = File.join(@website_root_dir, 'config', filename)
 
     p "Writing firebase config file to #{filepath}"
@@ -156,10 +156,20 @@ class DeployService
       Delayed::Worker.logger.info "Writing deploy endpoint environment variable to file: #{deploy_endpoint}"
       f.write("GATSBY_DEPLOY_ENDPOINT=#{deploy_endpoint}\n")
 
-      p "Writing additional environment variables to file"
-      Rails.logger.info "Writing additional environment variables to file"
-      Delayed::Worker.logger.info "Writing additional environment variables to file"
-      f.write(@website.environment_variables)
+      if @website.firebase_env
+        p "Writing Firebase environment variables to file: #{@website.firebase_env}"
+        Rails.logger.info "Writing Firebase environment variables to file: #{@website.firebase_env}"
+        Delayed::Worker.logger.info "Writing Firebase environment variables to file: #{@website.firebase_env}"
+        f.write("GATSBY_FIREBASE_ENVIRONMENT=#{@website.firebase_env}\n")
+      end
+
+      if @website.environment_variables
+        p "Writing additional environment variables to file"
+        Rails.logger.info "Writing additional environment variables to file"
+        Delayed::Worker.logger.info "Writing additional environment variables to file"
+        f.write(@website.environment_variables)
+      end
+
     end
   end
 

@@ -62,6 +62,8 @@ class WebsitesController < ApplicationController
         :source_repo,
         :firebase_project_id,
         :cloudflare_zone_id,
+        :gatsby_env,
+        :firebase_env,
         :firebase_config,
         :firebase_config_staging,
         :environment_variables)
