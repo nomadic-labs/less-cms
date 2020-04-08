@@ -10,6 +10,8 @@ class CloudflareService
     return nil unless @website.cloudflare_zone_id && @website.cloudflare_zone_id != ""
 
     p "Purging cache on Cloudflare"
+    Rails.logger.info "Purging cache on Cloudflare"
+    Delayed::Worker.logger.info "Purging cache on Cloudflare"
 
     url = "#{CLOUDFLARE_API_ENDPOINT}/zones/#{@website.cloudflare_zone_id}/purge_cache"
     headers = {

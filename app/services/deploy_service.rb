@@ -23,6 +23,7 @@ class DeployService
       download_source_repo
       write_firebase_config_files
       write_env_file
+      set_node_version
       install_website_dependencies
       build_website
       deploy_to_firebase
@@ -65,6 +66,26 @@ class DeployService
     Rails.logger.info "Extracted files to #{dir_name}"
     Delayed::Worker.logger.info "Extracted files to #{dir_name}"
     @website_root_dir = File.path("#{Rails.root}/tmp/website_root/#{dir_name}/")
+  end
+
+  def set_node_version
+    Dir.chdir(@website_root_dir) do
+      package_json = JSON.parse(File.read("package.json"))
+      node_version = package_json["engines"] ? package_json["engines"]["node"] : nil
+      if node_version
+        p "Switching to node version #{node_version}"
+        Rails.logger.info "Switching to node version #{node_version}"
+        Delayed::Worker.logger.info "Switching to node version #{node_version}"
+
+        success = system("nvm use #{node_version}")
+
+        if !success
+          p "Failed to set node version (nvm use #{node_version}) with exit status code #{$?}. Attempting to continue."
+          Rails.logger.info "Failed to set node version (nvm use #{node_version}) with exit status code #{$?}. Attempting to continue."
+          Delayed::Worker.logger.info "Failed to set node version (nvm use #{node_version}) with exit status code #{$?}. Attempting to continue."
+        end
+      end
+    end
   end
 
   def install_website_dependencies
