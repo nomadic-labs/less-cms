@@ -201,15 +201,15 @@ class DeployService
     end
 
     Dir.chdir(@website_root_dir) do
-      p "Deploying to firebase hosting"
-      Rails.logger.info "Deploying to firebase hosting"
-      Delayed::Worker.logger.info "Deploying to firebase hosting"
+      p "Deploying to firebase hosting on #{@website.firebase_project_id}"
+      Rails.logger.info "Deploying to firebase hosting on #{@website.firebase_project_id}"
+      Delayed::Worker.logger.info "Deploying to firebase hosting on #{@website.firebase_project_id}"
       project_result = %x(firebase use #{@website.firebase_project_id})
 
       Rails.logger.info project_result
       Delayed::Worker.logger.info project_result
 
-      success = system("firebase deploy")
+      success = system("firebase deploy --debug")
       Rails.logger.info "Build completed => #{success}"
       Delayed::Worker.logger.info "Build completed => #{success}"
       if !success
