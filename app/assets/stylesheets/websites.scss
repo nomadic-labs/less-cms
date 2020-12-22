@@ -33,6 +33,10 @@ input, textarea {
   padding: 0.5rem;
 }
 
+input[type="checkbox"] {
+  width: initial;
+}
+
 .page {
   padding: 3rem;
 

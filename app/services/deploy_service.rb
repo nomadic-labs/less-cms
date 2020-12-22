@@ -26,7 +26,7 @@ class DeployService
       set_node_version
       install_website_dependencies
       build_website
-      deploy_to_firebase
+      deploy_to_hosting
       purge_cloudflare_cache
       remove_project_files
       notify_editor_success
@@ -134,6 +134,28 @@ class DeployService
     end
   end
 
+  def deploy_to_hosting
+    if !ENV["RAILS_ENV"] == "production"
+      p "Skipping deployment on development environment"
+      return
+    end
+
+    Dir.chdir(@website_root_dir) do
+      if @website.custom_deploy_command
+        p "Running command yarn deploy"
+        Rails.logger.info "Running command yarn deploy"
+        Delayed::Worker.logger.info "Running command yarn deploy"
+
+        success = system("yarn deploy")
+        if !success
+          raise StandardError, "Failed to deploy website with exit status code #{$?}"
+        end
+      else
+        deploy_to_firebase
+      end
+    end
+  end
+
   def write_firebase_config_files
     if @website.firebase_config_staging
       filename = "firebase-config.staging.json"
@@ -195,26 +217,19 @@ class DeployService
   end
 
   def deploy_to_firebase
-    if !ENV["RAILS_ENV"] == "production"
-      p "Skipping deployment on development environment"
-      return
-    end
+    p "Deploying to firebase hosting on #{@website.firebase_project_id}"
+    Rails.logger.info "Deploying to firebase hosting on #{@website.firebase_project_id}"
+    Delayed::Worker.logger.info "Deploying to firebase hosting on #{@website.firebase_project_id}"
+    project_result = %x(firebase use #{@website.firebase_project_id})
 
-    Dir.chdir(@website_root_dir) do
-      p "Deploying to firebase hosting on #{@website.firebase_project_id}"
-      Rails.logger.info "Deploying to firebase hosting on #{@website.firebase_project_id}"
-      Delayed::Worker.logger.info "Deploying to firebase hosting on #{@website.firebase_project_id}"
-      project_result = %x(firebase use #{@website.firebase_project_id})
+    Rails.logger.info project_result
+    Delayed::Worker.logger.info project_result
 
-      Rails.logger.info project_result
-      Delayed::Worker.logger.info project_result
-
-      success = system("firebase deploy --debug")
-      Rails.logger.info "Build completed => #{success}"
-      Delayed::Worker.logger.info "Build completed => #{success}"
-      if !success
-        raise StandardError, "Failed to deploy to firebase (firebase deploy --debug) with exit status code #{$?}"
-      end
+    success = system("firebase deploy --debug")
+    Rails.logger.info "Build completed => #{success}"
+    Delayed::Worker.logger.info "Build completed => #{success}"
+    if !success
+      raise StandardError, "Failed to deploy to firebase (firebase deploy --debug) with exit status code #{$?}"
     end
   end
 

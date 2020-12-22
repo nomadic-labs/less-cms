@@ -66,6 +66,7 @@ class WebsitesController < ApplicationController
         :firebase_env,
         :firebase_config,
         :firebase_config_staging,
+        :custom_deploy_command,
         :environment_variables)
   end
 end

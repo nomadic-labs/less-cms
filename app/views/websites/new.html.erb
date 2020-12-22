@@ -70,6 +70,11 @@
             <%= f.text_area :environment_variables, rows: 10, placeholder: 'API_KEY=' %>
           </div>
 
+          <div>
+            <%= f.check_box :custom_deploy_command %>
+            <%= f.label(:custom_deploy_command, "Use `yarn deploy` command to deploy to hosting?", class: "checkbox inline") %>
+          </div>
+
           <div><%= f.submit "Save", class: "btn" %></div>
 
         <% end %>
