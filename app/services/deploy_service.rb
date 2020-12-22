@@ -142,27 +142,13 @@ class DeployService
 
     Dir.chdir(@website_root_dir) do
       if @website.custom_deploy_command
-        result = `yarn deploy`
-        p "Result of 'yarn deploy' => #{result}"
-        Rails.logger.info "Result of 'yarn deploy' => #{result}"
-        Delayed::Worker.logger.info "Result of 'yarn deploy' => #{result}"
+          result = system(@website.custom_deploy_command)
+          p "Result of system('#{@website.custom_deploy_command}') => #{result}"
+          Rails.logger.info "Result of system('#{@website.custom_deploy_command}') => #{result}"
+          Delayed::Worker.logger.info "Result of system('#{@website.custom_deploy_command}') => #{result}"
 
         if $?.exitstatus != 0
-          result = system("yarn deploy")
-          p "Result of system('yarn deploy') => #{result}"
-          Rails.logger.info "Result of system('yarn deploy') => #{result}"
-          Delayed::Worker.logger.info "Result of system('yarn deploy') => #{result}"
-        end
-
-        if $?.exitstatus != 0
-          result = %x(yarn deploy)
-          p "Result of %x(yarn deploy) => #{result}"
-          Rails.logger.info "Result of %x(yarn deploy) => #{result}"
-          Delayed::Worker.logger.info "Result of %x(yarn deploy) => #{result}"
-        end
-
-        if $?.exitstatus != 0
-          raise StandardError, "Failed to deploy (yarn deploy) with exit status code #{$?}"
+          raise StandardError, "Failed to deploy #{@website.custom_deploy_command} with exit status code #{$?}"
         end
       else
         deploy_to_firebase

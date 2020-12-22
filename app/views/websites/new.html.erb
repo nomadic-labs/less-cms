@@ -71,8 +71,8 @@
           </div>
 
           <div>
-            <%= f.check_box :custom_deploy_command %>
-            <%= f.label(:custom_deploy_command, "Use `yarn deploy` command to deploy to hosting?", class: "checkbox inline") %>
+            <%= f.label_tag(:custom_deploy_command, "Custom deploy command" ) %>
+            <%= f.text_field :custom_deploy_command %>
           </div>
 
           <div><%= f.submit "Save", class: "btn" %></div>
