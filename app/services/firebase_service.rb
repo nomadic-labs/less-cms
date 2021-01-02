@@ -1,9 +1,10 @@
+require "google/cloud/firestore"
+
 class FirebaseService
   FIREBASE_AUTH_ENDPOINT = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo"
 
   def initialize(config)
     @config = config
-    @client = Firebase::Client.new(config["databaseURL"], JSON.generate(config["serviceAccountKey"]))
   end
 
   def validate_token(token)
@@ -20,7 +21,19 @@ class FirebaseService
 
   def user_is_editor?(user)
     return false if !user
-    response = @client.get("users/#{user["localId"]}")
-    response.success? && response.body["isEditor"] == true
+
+    if @config["databaseURL"] # use firebase realtime database
+      client = Firebase::Client.new(@config["databaseURL"], JSON.generate(@config["serviceAccountKey"]))
+      response = client.get("users/#{user["localId"]}")
+      response.success? && response.body["isEditor"] == true
+    else # use firestore
+      p "creating firestore client"
+      client = Google::Cloud::Firestore.new(
+        project_id: @config["projectId"],
+        credentials: @config["serviceAccountKey"]
+      )
+      user_snap = client.doc("users/#{user["localId"]}").get
+      user_snap[:isEditor] == true
+    end
   end
 end

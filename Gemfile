@@ -39,6 +39,7 @@ gem 'bootsnap', '>= 1.1.0', require: false
 gem 'rubyzip', '>= 1.0.0'
 gem 'knock'
 gem 'firebase'
+gem 'google-cloud-firestore'
 gem 'rack-cors', require: 'rack/cors'
 gem 'httparty'
 gem 'friendly_id', '~> 5.2.4'
