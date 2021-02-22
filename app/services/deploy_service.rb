@@ -141,17 +141,17 @@ class DeployService
     end
 
     Dir.chdir(@website_root_dir) do
-      if @website.custom_deploy_command
-          result = system(@website.custom_deploy_command)
-          p "Result of system('#{@website.custom_deploy_command}') => #{result}"
-          Rails.logger.info "Result of system('#{@website.custom_deploy_command}') => #{result}"
-          Delayed::Worker.logger.info "Result of system('#{@website.custom_deploy_command}') => #{result}"
+      if @website.custom_deploy_command.blank?
+        deploy_to_firebase
+      else
+        result = system(@website.custom_deploy_command)
+        p "Result of system('#{@website.custom_deploy_command}') => #{result}"
+        Rails.logger.info "Result of system('#{@website.custom_deploy_command}') => #{result}"
+        Delayed::Worker.logger.info "Result of system('#{@website.custom_deploy_command}') => #{result}"
 
         if $?.exitstatus != 0
           raise StandardError, "Failed to deploy #{@website.custom_deploy_command} with exit status code #{$?}"
         end
-      else
-        deploy_to_firebase
       end
     end
   end
