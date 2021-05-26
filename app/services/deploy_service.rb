@@ -121,7 +121,7 @@ class DeployService
 
   def build_website
     Dir.chdir(@website_root_dir) do
-      env_vars = @website.gatsby_env ? "GATSBY_ACTIVE_ENV=#{@website.gatsby_env}" : ""
+      env_vars = @website.gatsby_env.blank? ? "" : "GATSBY_ACTIVE_ENV=#{@website.gatsby_env}"
 
       p "Building website with command yarn build #{env_vars}"
       Rails.logger.info "Building website with command yarn build #{env_vars}"
@@ -170,7 +170,7 @@ class DeployService
       end
     end
 
-    filename = @website.firebase_env ? "firebase-config.#{@website.firebase_env}.json" : "firebase-config.json"
+    filename = @website.firebase_env.blank? ? "firebase-config.json" : "firebase-config.#{@website.firebase_env}.json"
     filepath = File.join(@website_root_dir, 'config', filename)
 
     p "Writing firebase config file to #{filepath}"
@@ -199,7 +199,7 @@ class DeployService
       Delayed::Worker.logger.info "Writing deploy endpoint environment variable to file: #{deploy_endpoint}"
       f.write("GATSBY_DEPLOY_ENDPOINT=#{deploy_endpoint}\n")
 
-      if @website.firebase_env
+      if !@website.firebase_env.blank?
         p "Writing Firebase environment variables to file: #{@website.firebase_env}"
         Rails.logger.info "Writing Firebase environment variables to file: #{@website.firebase_env}"
         Delayed::Worker.logger.info "Writing Firebase environment variables to file: #{@website.firebase_env}"
